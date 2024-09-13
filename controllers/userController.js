@@ -20,8 +20,21 @@ async function createAccount(req,res){
     return res.redirect("/"); 
 }
 
+async function checkSignin(req,res){
+    const{email,password} = req.body;
+    const isMatched = await User.matchPassword(email,password);
+
+    if(isMatched != true){
+        return res.render("signin.ejs",{
+            signInErrMsg:"wrong password or email"
+        });
+    }
+    return res.redirect("/");
+}
+
 module.exports = {
     handleGetSignup,
     handleSignin,
     createAccount,
+    checkSignin,
 }

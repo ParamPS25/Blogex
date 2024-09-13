@@ -36,7 +36,7 @@ userSchema.pre("save",function(next){
 
     if(!user.isModified("password")) return;     //checks if the password field has been modified if not return
 
-    const Salt = randomBytes(16).toString();
+    const Salt = randomBytes(16).toString("hex");
 
     const hasedPassword = createHmac("sha256",Salt)
     .update(user.password)                     //Updates the Hmac content with the given data
@@ -47,6 +47,23 @@ userSchema.pre("save",function(next){
     this.password = hasedPassword;
 
     next();
+})
+
+userSchema.static("matchPassword",async function(givenEmail,givenPassword){
+    const user = await this.findOne({ email: givenEmail });
+    if (!user) {
+        console.error("User not found");
+        return false;
+    }
+    
+    const salt = user.salt;
+    const hashedPassword = user.password;
+
+    const userProvidedHash = createHmac("sha256", salt)
+        .update(givenPassword)
+        .digest("hex");
+
+    return hashedPassword === userProvidedHash;
 })
 
 const User = mongoose.model("users",userSchema);
