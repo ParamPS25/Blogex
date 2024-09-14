@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include("./partials/head") %>
+<title>add blogs</title>
+<body>
+    <%- include("./partials/nav") %>
+    <div style="margin-top: 1cm;">
+    <h2 style="margin-left: 3.2cm; font-family:Georgia, 'Times New Roman', Times, serif;">Add Blog</h2>
+    <div class="container mt-3">
+        <form action="/blog/add-new" method="POST" >
+
+              <div class="mb-3">
+                <label for="title" class="form-label">Blog Title</label>
+                <input type="text" name="title"  class="form-control" id="title" placeholder="Your Blog Title">
+              </div>
+
+            <div class="input-group mb-3">
+                
+                <input type="file" class="form-control" name="coverImage" id="coverImage" >
+                <label class="input-group-text" for="coverImage">Upload</label>
+            </div>
+            
+            <div class="form-floating">
+                <textarea oninput="autoResize(this)" class="form-control" name="bodyContent" placeholder="Start Writing..." id="floatingTextarea"></textarea>
+                <label for="floatingTextarea">Write</label>
+            </div>
+            
+            <button style="margin-top: 0.5cm;"class="btn btn-primary" type="submit">Button</button>
+        </form>
+    </div>
+</div>
+
+
+    <%- include("./partials/script") %>
+    <!--to resize body text when gets overflowed-->
+    <script>
+        function autoResize(textarea) {
+        textarea.style.height = 'auto'; // Reset the height
+        textarea.style.height = textarea.scrollHeight + 'px'; // Set the height to the scroll height
+        }
+    </script>
+</body>
+</html>

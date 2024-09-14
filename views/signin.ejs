@@ -5,13 +5,15 @@
 <body style="font-family:Georgia, 'Times New Roman', Times, serif">
 
     <%- include("./partials/nav") %>
-
-    <% if (locals.signInErrMsg) { %>
-     <h3><%= msg %></h3>
-    <% } %>
     
     <div class="container" style="margin: 2cm">
         <h2 style="margin-bottom:1cm"> SignIn </h2>
+
+        <% if (locals.signInErrMsg) { %>
+          <div class="alert alert-danger" role="alert">
+           <%= signInErrMsg %>
+          </div>
+        <% } %>
 
         <form action="/user/signin" method="POST">
             
