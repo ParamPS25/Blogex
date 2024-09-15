@@ -8,7 +8,7 @@ function createAccessToken(user){
         password : user.password,
         username : user.username,
         profileImg : user.profileImg,
-        role : user.role
+        role : user.role,
     }
     const token = jwt.sign(payload,process.env.ACCESS_TOKEN_SECRET_KEY);
     return token;

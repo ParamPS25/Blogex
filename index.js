@@ -2,9 +2,12 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+
+const commentRoutes = require("./routes/commentRoutes");
 const userRoutes = require("./routes/userRoutes");
 const blogRoutes = require("./routes/blogRoutes")
-const cookieParser = require("cookie-parser");
+
 const {validateUserViaCookie} = require("./middlewares/userMiddleware")
 const  Blog  = require("./models/blog");
 const path = require("path");
@@ -39,5 +42,6 @@ app.get("/",async(req,res)=>{
 
 app.use("/user",userRoutes);
 app.use("/blog",blogRoutes);
+app.use("/blog/comment",commentRoutes)
 
 app.listen(PORT,console.log(`server started at port ${PORT}`))

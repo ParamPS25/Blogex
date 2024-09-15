@@ -33,6 +33,6 @@ router.post('/',upload.single("coverImage"),postNewBlog)  // /blog/
     //console.log(req.file,req.body);
 
 // to read full blog /blog/blog._id
-router.get('/:id',getFullBlog)
+router.get('/:blogId',getFullBlog)
 
 module.exports = router;
