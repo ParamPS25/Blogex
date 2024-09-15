@@ -1,4 +1,7 @@
 require("dotenv").config();
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
@@ -33,7 +36,7 @@ app.use(validateUserViaCookie("uid"))
 //uid cookie name set on userController
 
 app.get("/",async(req,res)=>{
-    const allBlogs = await Blog.find({});
+    const allBlogs = await Blog.find({}).populate("createdBy");
     res.render("home",{
         currentUser : req.user,
         allBlogs : allBlogs,

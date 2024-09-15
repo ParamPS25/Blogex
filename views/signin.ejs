@@ -6,7 +6,7 @@
 
     <%- include("./partials/nav") %>
     
-    <div class="container" style="margin: 2cm">
+    <div class="container" style="margin: 2cm; align-items: center;">
         <h2 style="margin-bottom:1cm"> SignIn </h2>
 
         <% if (locals.signInErrMsg) { %>
@@ -19,13 +19,12 @@
             
             <div class="mb-3">
               <label for="exampleInputEmail1" class="form-label">Email address</label>
-              <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-              <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+              <input type="email" name="email" class="form-control" id="exampleInputEmail1" style="max-width: 70%;">
             </div>
 
             <div class="mb-3">
               <label for="exampleInputPassword1" class="form-label">Password</label>
-              <input type="password" name="password" class="form-control" id="exampleInputPassword1">
+              <input type="password" name="password" class="form-control" id="exampleInputPassword1" style="max-width: 70%;">
             </div>
 
             <div class="mb-3 form-check">
@@ -33,7 +32,11 @@
               <label class="form-check-label" for="exampleCheck1">Check me out</label>
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
+          
           </form>
+          <div class="container mt-3" style="margin-left: -0.3cm;">
+          <a href="/user/signup"> <button class="btn btn-secondary">Create account</button></a>
+        </div>
     </div>
 
     <%- include("./partials/script") %>

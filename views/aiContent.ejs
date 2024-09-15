@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blogex</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: large;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+            padding: 20px;
+        }
+        h2 {
+            color: #333;
+            text-align: center;
+        }
+        .scrollable-content {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>AI Summary</h2>
+        <% if (locals.aiGenContent) { %>
+            <div class="scrollable-content mt-3">
+                <pre><%= aiGenContent %></pre>
+            </div>
+        <% } %>
+    </div>
+
+    <%- include("./partials/script") %>
+</body>
+</html>

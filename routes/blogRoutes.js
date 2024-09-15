@@ -1,7 +1,7 @@
 const express = require("express");
 const Blog = require("../models/blog");
 const fs = require("fs");
-const {getNewBlog,postNewBlog,getFullBlog} = require("../controllers/blogController");
+const {getNewBlog,postNewBlog,getFullBlog,postAiSummary} = require("../controllers/blogController");
 const multer = require("multer");
 const path = require("path");
 
@@ -34,5 +34,8 @@ router.post('/',upload.single("coverImage"),postNewBlog)  // /blog/
 
 // to read full blog /blog/blog._id
 router.get('/:blogId',getFullBlog)
+
+// /blog/blog._id/aiSummary
+router.post('/:blogId/aisummary',postAiSummary)
 
 module.exports = router;

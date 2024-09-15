@@ -1,6 +1,11 @@
 const Blog = require("../models/blog");
 const Comment = require("../models/comments");
 
+require("dotenv").config();
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const genAI = new GoogleGenerativeAI(process.env.API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
 function getNewBlog(req,res){
     res.render("addBlog.ejs",{
         currentUser: req.user     // also passing currentUser as it contains navbar and navbar contains currentUser obj
@@ -27,19 +32,40 @@ async function postNewBlog (req,res){
 }
 
 // get /blog/blog._id -> /blog/:blogId 
-
+var blogViews=0
 async function getFullBlog(req,res){
+    blogViews += 1;
     const fullBlog = await Blog.findById(req.params.blogId).populate('createdBy');
     const allComments = await Comment.find({blogId : req.params.blogId}).populate('createdBy')                // finding all comments matching with this blogid and populate it with createdby
     res.render("fullBlog.ejs",{
         currentUser : req.user,                     //to display user info on comment and to load navbar wrt to Current user
         fullBlog : fullBlog,                          // as populated by createdBy can display info about user who posted this blog
         allComments : allComments,                    // passing all comments realted to this blog
+        blogViews : blogViews,
     })
+}
+
+// /blog/blog._id/aiSummary
+async function postAiSummary(req,res){
+    const findBlog = await Blog.findById(req.params.blogId);
+    const prompt = `summerise this ${findBlog.bodyContent}`;
+    const maxTokens = 100;
+    const result = await model.generateContent(prompt,maxTokens);
+    aiGenContent = result.response.text();
+      // Remove all asterisks from the content
+    aiGenContent = aiGenContent.replace(/\*/g, '');
+
+    // Trim any leading or trailing whitespace
+    aiGenContent = aiGenContent.trim();
+
+     await res.render("aiContent.ejs",{
+        aiGenContent:aiGenContent,
+    });
 }
 
 module.exports ={
     getNewBlog,
     postNewBlog,
     getFullBlog,
+    postAiSummary,
 }
