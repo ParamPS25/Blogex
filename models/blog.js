@@ -5,9 +5,8 @@ const blogSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
-    coverImg:{
+    coverImage:{
         type:String,
-        default: "/images/default.jpeg"
     },
     bodyContent:{
         type:String,

@@ -6,7 +6,9 @@ const userRoutes = require("./routes/userRoutes");
 const blogRoutes = require("./routes/blogRoutes")
 const cookieParser = require("cookie-parser");
 const {validateUserViaCookie} = require("./middlewares/userMiddleware")
+const  Blog  = require("./models/blog");
 const path = require("path");
+
 const PORT = 8080;
 
 const app = express();
@@ -21,13 +23,17 @@ mongoose
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(cookieParser());
+// Serve static files from the 'public' directory
+app.use(express.static(path.resolve("./public")));
 
 app.use(validateUserViaCookie("uid"))   
 //uid cookie name set on userController
 
-app.get("/",(req,res)=>{
+app.get("/",async(req,res)=>{
+    const allBlogs = await Blog.find({});
     res.render("home",{
         currentUser : req.user,
+        allBlogs : allBlogs,
     });
 })
 

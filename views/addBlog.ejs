@@ -7,7 +7,7 @@
     <div style="margin-top: 1cm;">
     <h2 style="margin-left: 3.2cm; font-family:Georgia, 'Times New Roman', Times, serif;">Add Blog</h2>
     <div class="container mt-3">
-        <form action="/blog/add-new" method="POST" >
+        <form action="/blog" method="POST" enctype="multipart/form-data">
 
               <div class="mb-3">
                 <label for="title" class="form-label">Blog Title</label>
@@ -16,7 +16,7 @@
 
             <div class="input-group mb-3">
                 
-                <input type="file" class="form-control" name="coverImage" id="coverImage" >
+                <input type="file"class="form-control" name="coverImage" id="coverImage" >
                 <label class="input-group-text" for="coverImage">Upload</label>
             </div>
             
@@ -25,7 +25,7 @@
                 <label for="floatingTextarea">Write</label>
             </div>
             
-            <button style="margin-top: 0.5cm;"class="btn btn-primary" type="submit">Button</button>
+            <button style="margin-top: 0.5cm;"class="btn btn-primary" type="submit">Add Blog</button>
         </form>
     </div>
 </div>
