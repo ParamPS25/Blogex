@@ -15,7 +15,7 @@ const {validateUserViaCookie} = require("./middlewares/userMiddleware")
 const  Blog  = require("./models/blog");
 const path = require("path");
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8000;
 
 const app = express();
 
@@ -23,7 +23,7 @@ app.set("view engine","ejs");
 app.set("views",path.resolve("./views"))
 
 mongoose
-.connect("mongodb://127.0.0.1:27017/blogexdb")
+.connect(process.env.MONGO_URL)
 .then((e)=>console.log("connected to db"));
 
 app.use(bodyParser.json());
