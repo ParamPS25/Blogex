@@ -13,6 +13,7 @@ AI Integration: Gemini AI for blog summarization<br>
 >[!NOTE]
 >The application is deployed on Render’s free tier, which provides 0.1 CPU and 512MB RAM. <br>
 Due to these limitations, you may need to reload the page twice if you encounter ‘not exist’ errors or if image loading takes time.<br>
+due to high latency as the region is Oregon Usa so, might takes few more seconds to load the server<br>
 live link : https://blogex.onrender.com/
 
 ## Installation
