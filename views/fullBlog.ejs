@@ -24,8 +24,18 @@
         <div class="blog-author mt-4 d-flex align-items-center">
             <img src="<%= fullBlog.createdBy.profileImg %>" class="author-image rounded-circle" alt="Author Image">
             <div class="ms-3">
+                <!--written by and at-->
                 <h4>Written By <%= fullBlog.createdBy.username %></h4>
                 <p><%= new Date(fullBlog.createdAt).toLocaleDateString() %></p>
+
+                <!--DELETE only if admin or current user's blog-->
+                <% if (fullBlog.createdBy.username === currentUser.username || currentUser.role ==="ADMIN") { %>
+                <div>
+                    <form action="/blog/<%=fullBlog.id%>/delete" method="POST">
+                    <button type="submit">Delete this blog</button>
+                    </form>
+                </div>
+                <% } %>
             </div>
         </div>
         <!-- AI Summary -->
@@ -38,8 +48,9 @@
             </div>
         </div>
     </div>
+    
 
-    <!-- Comment Section -->
+     <!--Comment Section -->
     <div class="container comment-section mt-4">
         <% if (locals.currentUser) { %>
             <form action="/blog/comment/<%=fullBlog._id%>" method="POST" class="comment-form">

@@ -63,9 +63,22 @@ async function postAiSummary(req,res){
     });
 }
 
+async function deleteBlog(req,res){
+    try{
+        const blog = await Blog.findById(req.params.blogId).populate("createdBy")
+        if(req.user.username === blog.createdBy.username || req.user.role === "ADMIN"){
+        await Blog.findByIdAndDelete(req.params.blogId);
+        res.redirect("/");
+        }
+    }catch(e){
+        res.redirect("/");
+    }
+}
+
 module.exports ={
     getNewBlog,
     postNewBlog,
     getFullBlog,
     postAiSummary,
+    deleteBlog,
 }
