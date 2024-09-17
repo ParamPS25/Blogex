@@ -28,8 +28,8 @@
                 <h4>Written By <%= fullBlog.createdBy.username %></h4>
                 <p><%= new Date(fullBlog.createdAt).toLocaleDateString() %></p>
 
-                <!--DELETE only if admin or current user's blog-->
-                <% if (fullBlog.createdBy.username === currentUser.username || currentUser.role ==="ADMIN") { %>
+                <!--DELETE only current user must be signedin/not undefined or (if admin or current user's blog )-->
+                <% if (currentUser && (fullBlog.createdBy.username === currentUser.username || currentUser.role ==="ADMIN") ){ %>
                 <div>
                     <form action="/blog/<%=fullBlog.id%>/delete" method="POST">
                     <button type="submit">Delete this blog</button>
