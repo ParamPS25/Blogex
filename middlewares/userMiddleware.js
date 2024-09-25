@@ -18,4 +18,21 @@ function validateUserViaCookie(cookieName){
     };
 }
 
-module.exports = {validateUserViaCookie}
+function authSignUp(req,res,next) {
+  try 
+    {
+        if (req.user){
+            return res.redirect("/");
+        }
+        else{
+            return next();
+        }
+    }catch(e){
+        console.log(e)
+    }
+}
+
+module.exports = {
+    validateUserViaCookie,
+    authSignUp,
+}

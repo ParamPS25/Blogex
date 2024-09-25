@@ -1,5 +1,6 @@
+require("dotenv").config();
 const User = require("../models/users");
-
+const nodemailer = require("nodemailer");
 
 function handleGetSignup(req,res){
     return res.render("signup.ejs");
@@ -22,7 +23,26 @@ async function createAccount(req, res) {
             email,
             password,
         });
-        return res.redirect("/"); 
+        // welcome mail to new user 
+        const transporter = nodemailer.createTransport({
+            service : "gmail",
+            secure : true,
+            port : 465,
+            auth :{
+                user : "bhavsarparam1941@gmail.com",
+                pass : process.env.MAIL_PASS,
+            }
+        });
+        await transporter.sendMail({
+            from : "bhavsarparam1941@gmail.com",
+            to : new_user.email,
+            subject : "Welcome to BlogEx!",
+            text : `Hi,${new_user.username}, We're thrilled to have you join our community of passionate bloggers and readers.`,
+            html : "<h4>If you have any questions or need assistance, feel free to reach out to us at support@blogex.com. We're here to help!</h4> <h4> Happy blogging!</h4> <br> <p>Best regards,</p><p>The BlogEx Team</p>"
+        });
+
+        return res.redirect("/");
+
     } catch (error) {
         console.error("Error creating account:", error);
         if (!res.headersSent) {
@@ -30,7 +50,6 @@ async function createAccount(req, res) {
         }
     }
 }
-
 
 async function checkSignin(req,res){
     const{email,password} = req.body;
@@ -54,3 +73,8 @@ module.exports = {
     checkSignin,
     handleLogout,
 }
+
+//Port 465: This port is used for SMTPS (SMTP Secure), which means it uses SSL (Secure Sockets Layer) to encrypt the connection between your application and the email server. This ensures that the data transmitted is secure and protected from eavesdropping
+//Service: Specifies the email service provider (Gmail in this case).
+//Secure: When set to true, it indicates that the connection should use SSL/TLS.
+//Port 465: Used for SMTPS, ensuring a secure connection.
