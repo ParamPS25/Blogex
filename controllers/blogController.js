@@ -32,16 +32,19 @@ async function postNewBlog (req,res){
 }
 
 // get /blog/blog._id -> /blog/:blogId 
-var blogViews=0
 async function getFullBlog(req,res){
-    blogViews += 1;
+    
     const fullBlog = await Blog.findById(req.params.blogId).populate('createdBy');
     const allComments = await Comment.find({blogId : req.params.blogId}).populate('createdBy')                // finding all comments matching with this blogid and populate it with createdby
+    const upviews = fullBlog.totalViews + 1;
+    await Blog.updateOne({_id:req.params.blogId},{$set:{totalViews:upviews}});
+
     res.render("fullBlog.ejs",{
         currentUser : req.user,                     //to display user info on comment and to load navbar wrt to Current user
         fullBlog : fullBlog,                          // as populated by createdBy can display info about user who posted this blog
         allComments : allComments,                    // passing all comments realted to this blog
-        blogViews : blogViews,
+        blogViews : upviews,
+        // upvotes : req.upvotes,
     })
 }
 
@@ -75,10 +78,23 @@ async function deleteBlog(req,res){
     }
 }
 
+// async function postUpvotes(req,res) {
+//    try{ 
+//         const blog = await Blog.findById(req.params.blogId);
+//         const updatedUpvotes = blog.upvotes + 1;
+//         req.upvotes = await Blog.updateOne({_id:req.params.blogId},{$set:{upvotes:updatedUpvotes}});
+//         res.redirect(`/`);
+//     }
+//     catch(err){
+//         console.log(err);
+//     }
+// }
+
 module.exports ={
     getNewBlog,
     postNewBlog,
     getFullBlog,
     postAiSummary,
     deleteBlog,
+    // postUpvotes
 }

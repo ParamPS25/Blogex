@@ -14,7 +14,15 @@ const blogSchema = new mongoose.Schema({
     createdBy:{
         type : mongoose.Schema.Types.ObjectId,
         ref:"users",
-    }
+    },
+    totalViews:{
+        type : Number,
+        default : 0,
+    },
+    // upvotes:{
+    //     type : Number,
+    //     default : 0,
+    // }
 },{timestamps:true}
 );
 
