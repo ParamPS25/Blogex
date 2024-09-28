@@ -81,7 +81,9 @@ async function deleteBlog(req,res){
 
 async function FormQrCode(req,res){
     try{
-            const url = `/blog/${req.params.blogId}`;
+        const domain = req.protocol + '://' + req.get('host');
+        const url = `${domain}/blog/${req.params.blogId}`;
+            // const url = `/blog/${req.params.blogId}`;
             QrCode.toDataURL(url,(err,qrCodeUrl)=>{
                 if(err){
                     res.status(500).json("internal server err");
@@ -119,3 +121,8 @@ module.exports ={
     // postUpvotes
     FormQrCode
 }
+
+//When you generate a QR code using a relative URL like /blog/${req.params.blogId}, the QR code only contains the path part of the URL. 
+//This means it doesn’t include the domain name (e.g., https://yourdomain.com).
+//As a result, when you scan the QR code, it tries to navigate to /blog/blogid on the current domain, which might not be correct, especially after deployment.
+
