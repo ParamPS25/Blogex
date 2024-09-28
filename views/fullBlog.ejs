@@ -22,6 +22,11 @@
         <div>Views : <%= blogViews %></div>
         <!--upvotes-->
 
+
+        <!--qr code for blog-->
+        <form action="/blog/<%= fullBlog.id%>/qrcode" method="POST">
+            <button type="submit">QRcode</button>
+        </form>
         <!--author content-->
         <div class="blog-author mt-4 d-flex align-items-center">
             <img src="<%= fullBlog.createdBy.profileImg %>" class="author-image rounded-circle" alt="Author Image">

@@ -1,5 +1,6 @@
 const Blog = require("../models/blog");
 const Comment = require("../models/comments");
+const QrCode = require("qrcode");
 
 require("dotenv").config();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -78,6 +79,25 @@ async function deleteBlog(req,res){
     }
 }
 
+async function FormQrCode(req,res){
+    try{
+            const url = `/blog/${req.params.blogId}`;
+            QrCode.toDataURL(url,(err,qrCodeUrl)=>{
+                if(err){
+                    res.status(500).json("internal server err");
+                }
+                else{
+                    //console.log(qrCodeUrl)
+                    res.render("QR.ejs",{
+                        qrCodeUrl : qrCodeUrl,
+                    })
+                }
+            })
+    }catch(err){
+        console.log(err);
+    }
+}
+
 // async function postUpvotes(req,res) {
 //    try{ 
 //         const blog = await Blog.findById(req.params.blogId);
@@ -97,4 +117,5 @@ module.exports ={
     postAiSummary,
     deleteBlog,
     // postUpvotes
+    FormQrCode
 }
