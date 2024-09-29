@@ -18,15 +18,35 @@
         <div class="mt-4 blog-content">
             <%= fullBlog.bodyContent %>
         </div>
+        
+        <hr>
+        
         <!--blog total Views-->
         <div>Views : <%= blogViews %></div>
-        <!--upvotes-->
 
+        <!--upvotes-->
+        <!--non signined user(._id -> undefined) can view upvotes but siginedUser(.id->defined) can also view and upvote on blog uniquely-->
+
+        <% if (currentUser && currentUser._id) { %>     <!-- Check if user is signed in -->
+            <% if (fullBlog.upvotedBy.includes(currentUser._id)) { %>       <!--if already upvoted-->
+                <div><p style="color: green;">Upvoted</p></div>
+            <% } else { %>                                                        
+                <form action="/blog/<%= fullBlog._id %>/upvotes" method="POST">
+                    <button type="submit" class="upvote-button">Upvote</button>
+                </form>
+            <% } %>
+        <% } %>
+        
+        <div>
+            <p>Upvotes : <%= fullBlog.upvotes %></p>
+        </div>
+        
 
         <!--qr code for blog-->
         <form action="/blog/<%= fullBlog.id%>/qrcode" method="POST">
             <button type="submit">QRcode</button>
         </form>
+
         <!--author content-->
         <div class="blog-author mt-4 d-flex align-items-center">
             <img src="<%= fullBlog.createdBy.profileImg %>" class="author-image rounded-circle" alt="Author Image">
@@ -39,12 +59,13 @@
                 <% if (currentUser && (fullBlog.createdBy.username === currentUser.username || currentUser.role ==="ADMIN") ){ %>
                 <div>
                     <form action="/blog/<%=fullBlog.id%>/delete" method="POST">
-                    <button type="submit">Delete this blog</button>
+                    <button type="submit" class="delete-button">Delete this blog</button>
                     </form>
                 </div>
                 <% } %>
             </div>
         </div>
+
         <!-- AI Summary -->
         <div class="alert alert-info" role="alert">
             <div class="container mt-4">

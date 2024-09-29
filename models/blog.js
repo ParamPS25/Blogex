@@ -19,10 +19,15 @@ const blogSchema = new mongoose.Schema({
         type : Number,
         default : 0,
     },
-    // upvotes:{
-    //     type : Number,
-    //     default : 0,
-    // }
+    upvotes:{
+        type : Number,
+        default : 0,
+    },
+    upvotedBy:[{
+        type : mongoose.Schema.Types.ObjectId,
+        ref : "users",
+    }]
+    // arr of upvotedBy as one blog can recive multiple upvotes by user(unique) 
 },{timestamps:true}
 );
 
