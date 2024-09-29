@@ -4,6 +4,7 @@ const QrCode = require("qrcode");
 
 require("dotenv").config();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { nodemailerAuth } = require("../services/nodemailerAuth");
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -35,17 +36,21 @@ async function postNewBlog (req,res){
 // get /blog/blog._id -> /blog/:blogId 
 async function getFullBlog(req,res){
     
+    // as if user is not signINed will throw undefined err , so to avoid that we are assigning req.user = null if undefined
+    if(req.user == undefined){
+        req.user = null;
+    }
+
     const fullBlog = await Blog.findById(req.params.blogId).populate('createdBy');
     const allComments = await Comment.find({blogId : req.params.blogId}).populate('createdBy')                // finding all comments matching with this blogid and populate it with createdby
     const upviews = fullBlog.totalViews + 1;
     await Blog.updateOne({_id:req.params.blogId},{$set:{totalViews:upviews}});
-
+    //console.log(req.user);
     res.render("fullBlog.ejs",{
         currentUser : req.user,                     //to display user info on comment and to load navbar wrt to Current user
         fullBlog : fullBlog,                          // as populated by createdBy can display info about user who posted this blog
         allComments : allComments,                    // passing all comments realted to this blog
         blogViews : upviews,
-        // upvotes : req.upvotes,
     })
 }
 
@@ -86,7 +91,7 @@ async function FormQrCode(req,res){
             // const url = `/blog/${req.params.blogId}`;
             QrCode.toDataURL(url,(err,qrCodeUrl)=>{
                 if(err){
-                    res.status(500).json("internal server err");
+                    return res.status(500).json("internal server err");
                 }
                 else{
                     //console.log(qrCodeUrl)
@@ -100,17 +105,42 @@ async function FormQrCode(req,res){
     }
 }
 
-// async function postUpvotes(req,res) {
-//    try{ 
-//         const blog = await Blog.findById(req.params.blogId);
-//         const updatedUpvotes = blog.upvotes + 1;
-//         req.upvotes = await Blog.updateOne({_id:req.params.blogId},{$set:{upvotes:updatedUpvotes}});
-//         res.redirect(`/`);
-//     }
-//     catch(err){
-//         console.log(err);
-//     }
-// }
+async function postUpvotes(req,res) {
+   try{ 
+        const blog = await Blog.findById(req.params.blogId).populate("createdBy");
+
+        if(!blog) return res.status(404).json({msg:"blog not found"});
+
+        if(blog.upvotedBy.includes(req.user._id)){  // if upvoted by current user
+            return res.status(400)
+        }  
+
+        blog.upvotedBy.push(req.user._id);
+        blog.upvotes += 1;
+        await blog.save();
+
+        // mail the user(one who created blog) on upvote
+        const transporter = nodemailerAuth;
+        await transporter.sendMail({
+            from : "bhavsarparam1941@gmail.com",
+            to : blog.createdBy.email,
+            subject : "Your Blog just got Upvoted !",
+            html : `<h4>Great news! Your blog post titled ${blog.title} just received an upvote on BlogEx. 🎉</h4>
+            <p>We wanted to let you know that your content is resonating with our community. Keep up the fantastic work!</p>
+            <p>Thank you for being an active member of BlogEx. We look forward to seeing more of your amazing content!</p>
+            <p>Best regards,<br>The BlogEx Team</p>`
+        })
+
+        // res.render("fullBlog.ejs",{
+        //     // upvotes:blog.upvotes,
+        //     // upvotedBy:blog.upvotedBy
+        // });
+        res.redirect(`/blog/${req.params.blogId}`);
+    }
+    catch(err){
+        console.log(err);
+    }
+}
 
 module.exports ={
     getNewBlog,
@@ -118,7 +148,7 @@ module.exports ={
     getFullBlog,
     postAiSummary,
     deleteBlog,
-    // postUpvotes
+    postUpvotes,
     FormQrCode
 }
 

@@ -1,6 +1,7 @@
 require("dotenv").config();
 const User = require("../models/users");
 const nodemailer = require("nodemailer");
+const {nodemailerAuth} = require("../services/nodemailerAuth");
 
 function handleGetSignup(req,res){
     return res.render("signup.ejs");
@@ -24,15 +25,8 @@ async function createAccount(req, res) {
             password,
         });
         // welcome mail to new user 
-        const transporter = nodemailer.createTransport({
-            service : "gmail",
-            secure : true,
-            port : 465,
-            auth :{
-                user : "bhavsarparam1941@gmail.com",
-                pass : process.env.MAIL_PASS,
-            }
-        });
+        const transporter = nodemailerAuth;
+
         await transporter.sendMail({
             from : "bhavsarparam1941@gmail.com",
             to : new_user.email,
