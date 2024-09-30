@@ -14,12 +14,21 @@ function getNewBlog(req,res){
     });
 }
 
+var imgChangeCount = 0;
 async function postNewBlog (req,res){
     //console.log(req.file,req.body);
     // if user not uploaded file => err as filename will be undefined
     // so will set caver img path as null so even if req.file is undefined not gives err
     
-    coverImagePath = null;
+    //coverImagePath = null;
+    if(imgChangeCount == 0){
+        coverImagePath = `/images/default_cover_img.png`;
+        imgChangeCount = 1;
+    }
+    else{
+        coverImagePath = `/images/default_cover_img2.png`;
+        imgChangeCount = 0;
+    }
     if(req.file){
         coverImagePath = `/uploads/${req.user._id}/${req.file.filename}`
     }
