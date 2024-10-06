@@ -1,6 +1,7 @@
 const Blog = require("../models/blog");
 const Comment = require("../models/comments");
 const QrCode = require("qrcode");
+const cloudinary = require("../services/cloudinary");
 
 require("dotenv").config();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -16,30 +17,49 @@ function getNewBlog(req,res){
 
 var imgChangeCount = 0;
 async function postNewBlog (req,res){
-    //console.log(req.file,req.body);
-    // if user not uploaded file => err as filename will be undefined
-    // so will set caver img path as null so even if req.file is undefined not gives err
-    
-    //coverImagePath = null;
-    if(imgChangeCount == 0){
-        coverImagePath = `/images/default_cover_img.png`;
-        imgChangeCount = 1;
+    try{
+        if(!req.body.title){ req.body.title = `default title-${req.username}`}
+        //console.log(req.file,req.body);
+        // if user not uploaded file => err as filename will be undefined
+        // so will set cover img path as null so even if req.file is undefined not gives err , req.file: Holds information about the uploaded file populated by multer || req.file.path: This is the path where the uploaded file is temporarily stored
+        
+        //coverImagePath = null;
+        if(imgChangeCount == 0){
+            coverImagePath = `/images/default_cover_img.png`;
+            imgChangeCount = 1;
+        }
+        else{
+            coverImagePath = `/images/default_cover_img2.png`;
+            imgChangeCount = 0;
+        }
+        if(req.file){
+            //coverImagePath = `/uploads/${req.user._id}/${req.file.filename}`
+            // instead of uploading it to local storage we are uploading it to cloudinary so, store uploaded file url in coverfilepath and display that path via src from ejs
+            console.log(req.file.path); 
+            const result = await cloudinary.uploader.upload(req.file.path,{        
+                transformation: [
+                    { width: 740, height: 370}, // Cropping and resizing
+                    { quality: "auto" }, // Optimize quality
+                    { fetch_format: "auto" } // Optimal format
+                ]
+            });
+                // console.log(result);
+                // console.log(result.url);
+                coverImagePath = result.url;
+        }
+        const{title,bodyContent}=req.body
+        const newBlog = await Blog.create({
+            title,
+            bodyContent,
+            createdBy:req.user._id,                                     
+            coverImage: coverImagePath
+        });
+        res.redirect(`/blog/${newBlog._id}`);
+
+    }catch(err){
+    console.log(err)
+    res.json(500)
     }
-    else{
-        coverImagePath = `/images/default_cover_img2.png`;
-        imgChangeCount = 0;
-    }
-    if(req.file){
-        coverImagePath = `/uploads/${req.user._id}/${req.file.filename}`
-    }
-    const{title,bodyContent}=req.body
-    const newBlog = await Blog.create({
-        title,
-        bodyContent,
-        createdBy:req.user._id,                                     
-        coverImage: coverImagePath
-    });
-    res.redirect(`/blog/${newBlog._id}`);
 }
 
 // get /blog/blog._id -> /blog/:blogId 
