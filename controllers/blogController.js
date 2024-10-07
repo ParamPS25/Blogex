@@ -6,6 +6,7 @@ const cloudinary = require("../services/cloudinary");
 require("dotenv").config();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { nodemailerAuth } = require("../services/nodemailerAuth");
+const User = require("../models/users");
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -54,6 +55,10 @@ async function postNewBlog (req,res){
             createdBy:req.user._id,                                     
             coverImage: coverImagePath
         });
+        await User.updateOne(
+            {_id:req.user._id},                      // updating user who post this blog
+            {$push:{BlogsWritten : newBlog._id}}
+        );
         res.redirect(`/blog/${newBlog._id}`);
 
     }catch(err){

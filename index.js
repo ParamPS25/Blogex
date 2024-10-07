@@ -13,6 +13,7 @@ const blogRoutes = require("./routes/blogRoutes")
 
 const {validateUserViaCookie} = require("./middlewares/userMiddleware")
 const  Blog  = require("./models/blog");
+const User = require("./models/users")
 const path = require("path");
 
 const PORT = process.env.PORT || 8000;
@@ -37,9 +38,11 @@ app.use(validateUserViaCookie("uid"))
 
 app.get("/",async(req,res)=>{
     const allBlogs = await Blog.find({}).populate("createdBy");
+    const allUsers = await User.find({})
     res.render("home",{
         currentUser : req.user,
         allBlogs : allBlogs,
+        allUsers : allUsers,
     });
 })
 

@@ -60,12 +60,27 @@ async function checkSignin(req,res){
     }
 }
 
+// async function listOutUser(req,res){
+//     const allUsers = await User.find({});
+//     res.status(200).json(allUsers);
+// }
+
+async function getSelectedUserBlog(req,res){
+    const selectedUser = await User.findById(req.params.userId).populate('BlogsWritten');
+    //console.log(selectedUser);
+    res.render('userBlogs.ejs',{
+        userBlogs : selectedUser
+    })
+}
+
 module.exports = {
     handleGetSignup,
     handleSignin,
     createAccount,
     checkSignin,
     handleLogout,
+    //listOutUser,
+    getSelectedUserBlog,
 }
 
 //Port 465: This port is used for SMTPS (SMTP Secure), which means it uses SSL (Secure Sockets Layer) to encrypt the connection between your application and the email server. This ensures that the data transmitted is secure and protected from eavesdropping
