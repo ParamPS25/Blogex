@@ -176,6 +176,34 @@ async function postUpvotes(req,res) {
     }
 }
 
+async function searchBlog(req,res){
+    // const searchedTerms = req.body.searchBlog;
+    // const resultBlog = await Blog.find({
+    //     $or:[
+    //         {title:{$regex : searchedTerms ,$options: "i"}},
+    //         {bodyContent:{$regex : searchedTerms ,$options : "i"}},
+    //         //{createdBy[username]:{$regex : searchedTerms ,$options : "i"}} for this need to populate 'createdBy'
+    //     ]
+    // })
+    const searchedTerms = req.body.searchBlog;
+    const blogsList = await Blog.find().populate('createdBy');
+
+    const resultBlogs = blogsList.filter(blog =>{
+       const titleMatch = blog.title.match(new RegExp(searchedTerms,'i'));
+       const contentMatch = blog.bodyContent.match(new RegExp(searchedTerms,'i'));
+       const usernameMatch = blog.createdBy.username.match(new RegExp(searchedTerms,'i'));
+
+       return titleMatch || contentMatch || usernameMatch
+    })
+
+    //res.json(resultBlog);
+
+    res.render('searchedBlog.ejs',{
+        resultBlogs : resultBlogs,
+        searchedTerms : searchedTerms,
+    })
+}
+
 module.exports ={
     getNewBlog,
     postNewBlog,
@@ -183,7 +211,8 @@ module.exports ={
     postAiSummary,
     deleteBlog,
     postUpvotes,
-    FormQrCode
+    FormQrCode,
+    searchBlog
 }
 
 //When you generate a QR code using a relative URL like /blog/${req.params.blogId}, the QR code only contains the path part of the URL. 

@@ -1,7 +1,7 @@
 const express = require("express");
 const Blog = require("../models/blog");
 const fs = require("fs");
-const {getNewBlog,postNewBlog,getFullBlog,postAiSummary, deleteBlog,FormQrCode, postUpvotes} = require("../controllers/blogController");
+const {getNewBlog,postNewBlog,getFullBlog,postAiSummary, deleteBlog,FormQrCode, postUpvotes ,searchBlog} = require("../controllers/blogController");
 const multer = require("multer");
 const path = require("path");
 
@@ -46,4 +46,5 @@ router.post('/:blogId/qrcode',FormQrCode)
 
 router.post("/:blogId/upvotes",postUpvotes)
 
+router.post("/searchBlog",searchBlog);
 module.exports = router;

@@ -52,7 +52,7 @@
             <img src="<%= fullBlog.createdBy.profileImg %>" class="author-image rounded-circle" alt="Author Image">
             <div class="ms-3">
                 <!--written by and at-->
-                <h4>Written By <%= fullBlog.createdBy.username %></h4>
+                <h4>Written By <a href="/user/<%= fullBlog.createdBy._id %>"> <%= fullBlog.createdBy.username %></a></h4>
                 <p><%= new Date(fullBlog.createdAt).toLocaleDateString() %></p>
 
                 <!--DELETE only current user must be signedin/not undefined or (if admin or current user's blog )-->

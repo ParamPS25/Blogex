@@ -15,7 +15,7 @@
             flex-grow: 1;
         }
         .user-list {
-            position:absolute;
+            position: absolute;
             top: 73px; /* Adjusting list height based on navbar height */
             right: 0;
             width: 20%;
@@ -42,7 +42,29 @@
         .user-item a {
             text-decoration: none;
         }
-
+        .search-bar {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+        .search-bar input[type="text"] {
+            width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        .search-bar button {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border-left: none;
+            cursor: pointer;
+        }
+        .search-bar button:hover {
+            background-color: #0056b3;
+        }
     </style>
 
 </head>
@@ -51,9 +73,18 @@
     <%- include("./partials/nav") %>
     <% if (!locals.currentUser) { %>
         <div class="alert alert-warning" role="alert" style="font-size: large;">
-            <a href="/user/signin"> Signin to add blogs </a>
-           </div>
+            <a href="/user/signin"> Sign in to add blogs </a>
+        </div>
     <% } %>
+    
+    <!--search bar-->
+    <div class="search-bar">
+        <form action="/blog/searchBlog" method="POST">
+            <input type="text" name="searchBlog" placeholder="Search for any blog or user">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
     <div class="container mt-3 blog-list">
         <div class="row g-4">
             <!--allBlogs and currentUser passed from index.js get "/"-->
@@ -72,22 +103,25 @@
         </div>
     </div>
 
-    <div class="user-list">
-        <h5>All Users</h5>
-        <ul class="list-group">
-            <% allUsers.forEach(user => { %>
-                <li class="list-group-item user-item">
-                    <img src="<%= user.profileImg %>" alt="Profile Picture">
-                    <% if (locals.currentUser != undefined && currentUser._id == user._id) { %>
-                        <a href="/user/<%= user._id %>" style="color: green;"> You </a>
-
-                    <% } else { %>
-                        <a href="/user/<%= user._id %>">  <%= user.username %>  </a>
-                    <% } %>
-                </li>
-            <% }) %>
-        </ul>
-    </div>
+    <!--for admin-->
+    <% if (currentUser!== undefined && currentUser.role === "ADMIN") { %>
+        <div class="user-list">
+            <h5>All Users</h5>
+            <ul class="list-group">
+                <% allUsers.forEach(user => { %>
+                    <li class="list-group-item user-item">
+                        <img src="<%= user.profileImg %>" alt="Profile Picture">
+                        <% if (locals.currentUser != undefined && currentUser._id == user._id) { %>
+                            <a href="/user/<%= user._id %>" style="color: green;"> You • Admin</a>
+    
+                        <% } else { %>
+                            <a href="/user/<%= user._id %>">  <%= user.username %>  </a>
+                        <% } %>
+                    </li>
+                <% }) %>
+            </ul>
+        </div>
+    <% } %>
 
     <%- include("./partials/script") %>
 </body>
