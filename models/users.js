@@ -32,6 +32,14 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'blogs' 
     }],
+    // loginAttempts : {
+    //     type : Number,
+    //     default : 0,
+    // },
+    // lockUntill : {
+    //     type : Date,
+    //     default: undefined
+    // }
     
 },{timestamps:true}
 );
@@ -73,6 +81,40 @@ userSchema.static("matchPasswordAndCreateToken",async function(givenEmail,givenP
     const token = createAccessToken(user);
      return token;
 })
+
+
+// userSchema.static("incrementLoginAttempts",async function(email) {
+//     const lockTime = 15 * 60 * 1000; // 15 mins lock time
+
+//     console.log("Finding user by email:", email);
+//     // Find the user by email
+//     const user = await this.findOne({ email });
+
+//     if (!user) {
+//         console.error("User not found for incrementing login attempts.");
+//         return; 
+//     }
+
+//     console.log("User found. Checking lock status.");
+//     // Return if the account is locked, ensuring the calling function can handle it immediately
+//     if (user.lockUntill && user.lockUntill > Date.now()) {
+//         console.log("Account is locked until:", user.lockUntill);
+//         throw new Error('exceeds more than 5 tries, try again later');
+//     }
+
+//     console.log("Incrementing login attempts.");
+//     // If the account isn't locked, increment the counter and return the result of this.save(), which is a promise
+//     if (user.loginAttempts >= 5) {
+//         user.lockUntill = Date.now() + lockTime;  // Locking account until 15 mins from last (5th) attempt
+//         user.loginAttempts = 0;
+//     } else {
+//         user.loginAttempts += 1;
+//     }
+
+//     console.log("Saving user with incremented login attempts.");
+//     return await user.save();
+// });
+
 
 const User = mongoose.model("users",userSchema);
 
