@@ -2,6 +2,7 @@ require("dotenv").config();
 const User = require("../models/users");
 const nodemailer = require("nodemailer");
 const {nodemailerAuth} = require("../services/nodemailerAuth");
+const {generateOtp} = require("../services/otpGen");
 
 function handleGetSignup(req,res){
     return res.render("signup.ejs");
@@ -16,6 +17,8 @@ function handleLogout(req,res){
     return res.clearCookie("uid").redirect("/");
 }
 
+var GenratedOtp;
+var accountCreatedFlag = false
 async function createAccount(req, res) {
     try {
         const { username, email, password } = req.body;
@@ -24,6 +27,9 @@ async function createAccount(req, res) {
             email,
             password,
         });
+
+         GenratedOtp = generateOtp();
+
         // welcome mail to new user 
         const transporter = nodemailerAuth;
 
@@ -31,11 +37,13 @@ async function createAccount(req, res) {
             from : "bhavsarparam1941@gmail.com",
             to : new_user.email,
             subject : "Welcome to BlogEx!",
-            text : `Hi,${new_user.username}, We're thrilled to have you join our community of passionate bloggers and readers.`,
-            html : "<h4>If you have any questions or need assistance, feel free to reach out to us at support@blogex.com. We're here to help!</h4> <h4> Happy blogging!</h4> <br> <p>Best regards,</p><p>The BlogEx Team</p>"
+            html : `<h4>Hi ${new_user.username} , We're thrilled to have you join our community of passionate bloggers and readers.</h4>,
+                    <h4>your one time otp is : ${GenratedOtp}</h4>
+                    <h4>If you have any questions or need assistance, feel free to reach out to us at support@blogex.com. We're here to help!</h4> <h4> Happy blogging!</h4> <br> <p>Best regards,</p><p>The BlogEx Team</p>`
         });
 
-        return res.redirect("/");
+        accountCreatedFlag = true;
+        return res.redirect("/user/otp-verify");
 
     } catch (error) {
         console.error("Error creating account:", error);
@@ -65,12 +73,42 @@ async function checkSignin(req,res){
 //     res.status(200).json(allUsers);
 // }
 
+async function getOtpVerification(req,res){
+    res.render('otpVerification.ejs',{
+        currentUser : req.user,
+        accountCreatedFlag : accountCreatedFlag,
+    });
+}
+
+async function postOtpVerification(req,res) {
+    try{
+        const otpFromUser = req.body.OTP;
+        if(otpFromUser === GenratedOtp){
+            res.redirect("/");
+        }
+        else{
+            res.render("otpVerification.ejs",{
+                otpErrMsg : "Wrong Otp , try again"
+            })
+        }
+        // need to set timeout and interval for otp
+        // need to check for anon users 
+        // need to include it in JWt tokens instead in var
+        // 2 mistakes 
+    }
+    catch(e){
+        res.json(400)
+        console.log(e.message);
+    }
+    
+}
+
 async function getSelectedUserBlog(req,res){
     const selectedUser = await User.findById(req.params.userId).populate('BlogsWritten');
     //console.log(selectedUser);
     res.render('userBlogs.ejs',{
         userBlogs : selectedUser
-    })
+    });
 }
 
 module.exports = {
@@ -81,6 +119,8 @@ module.exports = {
     handleLogout,
     //listOutUser,
     getSelectedUserBlog,
+    getOtpVerification,
+    postOtpVerification,
 }
 
 //Port 465: This port is used for SMTPS (SMTP Secure), which means it uses SSL (Secure Sockets Layer) to encrypt the connection between your application and the email server. This ensures that the data transmitted is secure and protected from eavesdropping

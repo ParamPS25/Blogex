@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <% if (locals.accountCreatedFlag == true) { %>
+        <% if (locals.otpErrMsg) { %>
+         <h4>wrong otp</h4>
+        <% } %>
+        <form action="/user/otp-verify" method="POST">
+            <h4>check your spam folder if don't find one</h4>
+            <label for="OTP">enter your otp</label>
+            <input type="text" name="OTP">
+            <button type="submit">Verify</button>
+        </form>
+    <% } %>
+</body>
+</html>
