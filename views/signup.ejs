@@ -8,6 +8,12 @@
     <div class="container" style="margin: 2cm;">
         <h2 style="margin-bottom:1cm; font-weight: 400;">SignUp</h2>
 
+        <% if (locals.signupErrMsg) { %>
+            <div class="alert alert-danger" role="alert">
+            <%= signupErrMsg %>
+            </div>
+        <% } %>
+
         <form action="/user/signup" method="POST">
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>

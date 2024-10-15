@@ -4,8 +4,12 @@ const nodemailer = require("nodemailer");
 const {nodemailerAuth} = require("../services/nodemailerAuth");
 const {generateOtp} = require("../services/otpGen");
 
+// session created in user routerto temp store user , accountcreatedflag and otp
+
 function handleGetSignup(req,res){
-    return res.render("signup.ejs");
+    return res.render("signup.ejs",{
+        signupErrMsg : null,
+    });
 }
 
 function handleSignin(req,res){
@@ -17,32 +21,41 @@ function handleLogout(req,res){
     return res.clearCookie("uid").redirect("/");
 }
 
-var GenratedOtp;
-var accountCreatedFlag = false
-async function createAccount(req, res) {
+async function handlePostSignupAndOtp(req, res) {
     try {
         const { username, email, password } = req.body;
-        const new_user = await User.create({
-            username,
-            email,
-            password,
-        });
+        const checkemail = await User.findOne({email:email});
+        // if user already exists with this mail account => again render signup
+        if(checkemail){
+            return res.render("signup.ejs",{
+                signupErrMsg : "user already exists with this email"
+            })
+        }
+        // Temporarily store user details in session to create after otp verification
+        req.session.tempUser = { username, email, password }
 
-         GenratedOtp = generateOtp();
+        // const new_user = await User.create({
+        //     username,
+        //     email,
+        //     password,
+        // });
 
-        // welcome mail to new user 
+        const otp = generateOtp();
+         req.session.GeneratedOtp = otp; 
+
+        // welcome mail to user with otp
         const transporter = nodemailerAuth;
 
         await transporter.sendMail({
             from : "bhavsarparam1941@gmail.com",
-            to : new_user.email,
+            to : req.body.email,
             subject : "Welcome to BlogEx!",
-            html : `<h4>Hi ${new_user.username} , We're thrilled to have you join our community of passionate bloggers and readers.</h4>,
-                    <h4>your one time otp is : ${GenratedOtp}</h4>
+            html : `<h4>We're thrilled to have you join our community of passionate bloggers and readers.</h4>,
+                    <h4>your one time otp is : ${otp}</h4>
                     <h4>If you have any questions or need assistance, feel free to reach out to us at support@blogex.com. We're here to help!</h4> <h4> Happy blogging!</h4> <br> <p>Best regards,</p><p>The BlogEx Team</p>`
         });
 
-        accountCreatedFlag = true;
+        req.session.accountCreatedFlag = true;      // to ensure otp page accesible only to user who currently created account only restricting anon access 
         return res.redirect("/user/otp-verify");
 
     } catch (error) {
@@ -51,6 +64,49 @@ async function createAccount(req, res) {
             return res.status(500).send("Internal Server Error");
         }
     }
+}
+
+async function getOtpVerification(req,res){
+    res.render('otpVerification.ejs',{
+        currentUser : req.session.tempUser,
+        accountCreatedFlag : req.session.accountCreatedFlag,
+        otpErrMsg : null,
+    });
+}
+
+async function postOtpVerification(req,res) {
+    try{
+        const otpFromUser = req.body.OTP;
+        //console.log(req.session)            //look at end of code for debugging purpose
+
+        if(otpFromUser === req.session.GeneratedOtp  && req.session.accountCreatedFlag){
+            req.session.accountCreatedFlag = false;    // to restrict anon accessing otp page
+            // creating new user on successfully otp verifn
+            const new_user = await User.create(req.session.tempUser);            
+            
+            // Clear the session data after successful verification and user creation
+            req.session.generatedOtp = null;
+            req.session.accountCreatedFlag = null;
+            req.session.tempUser = null;
+
+            //console.log(req.session)
+            return res.redirect("/");
+            
+        }
+        else{
+            // as clearing session data on successfull verifn of otp, else will not create account untill verfn sucess
+            return res.render("otpVerification.ejs",{
+                otpErrMsg : "Wrong Otp , try again",
+                accountCreatedFlag: req.session.accountCreatedFlag,
+            })
+        }
+        // need to set timeout and interval for otp
+    }
+    catch(e){
+        res.status(500)
+        console.log(e.message);
+    }
+    
 }
 
 async function checkSignin(req,res){
@@ -73,35 +129,6 @@ async function checkSignin(req,res){
 //     res.status(200).json(allUsers);
 // }
 
-async function getOtpVerification(req,res){
-    res.render('otpVerification.ejs',{
-        currentUser : req.user,
-        accountCreatedFlag : accountCreatedFlag,
-    });
-}
-
-async function postOtpVerification(req,res) {
-    try{
-        const otpFromUser = req.body.OTP;
-        if(otpFromUser === GenratedOtp){
-            res.redirect("/");
-        }
-        else{
-            res.render("otpVerification.ejs",{
-                otpErrMsg : "Wrong Otp , try again"
-            })
-        }
-        // need to set timeout and interval for otp
-        // need to check for anon users 
-        // need to include it in JWt tokens instead in var
-        // 2 mistakes 
-    }
-    catch(e){
-        res.json(400)
-        console.log(e.message);
-    }
-    
-}
 
 async function getSelectedUserBlog(req,res){
     const selectedUser = await User.findById(req.params.userId).populate('BlogsWritten');
@@ -114,7 +141,7 @@ async function getSelectedUserBlog(req,res){
 module.exports = {
     handleGetSignup,
     handleSignin,
-    createAccount,
+    handlePostSignupAndOtp,
     checkSignin,
     handleLogout,
     //listOutUser,
@@ -127,3 +154,29 @@ module.exports = {
 //Service: Specifies the email service provider (Gmail in this case).
 //Secure: When set to true, it indicates that the connection should use SSL/TLS.
 //Port 465: Used for SMTPS, ensuring a secure connection.
+
+
+
+// Session {
+//     cookie: { path: '/', _expires: null, originalMaxAge: null, httpOnly: true },
+//     tempUser: {
+//       username: 'param2',
+//       email: 'bhavsarparam1941@gmail.com',
+//       password: '******'
+//     },
+//     GeneratedOtp: 'fdb5h',
+//     accountCreatedFlag: true
+//   }
+
+// after successfull verification
+
+// Session {
+//     cookie: { path: '/', _expires: null, originalMaxAge: null, httpOnly: true },
+//     tempUser: {
+//       username: 'param2',
+//       email: 'bhavsarparam1941@gmail.com',
+//       password: '********'
+//     },
+//     GeneratedOtp: 'fdb5h',
+//     accountCreatedFlag: true
+//   }
