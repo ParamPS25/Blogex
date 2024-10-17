@@ -54,13 +54,30 @@ app.use(validateUserViaCookie("uid"))
 //uid cookie name set on userController
 
 app.get("/",async(req,res)=>{
-    const allBlogs = await Blog.find({}).populate("createdBy");
-    const allUsers = await User.find({})
-    res.render("home",{
-        currentUser : req.user,
-        allBlogs : allBlogs,
-        allUsers : allUsers,
+
+    try{
+        const page = parseInt(req.query.page) || 1 ;        // default 1st page
+        const limit = parseInt(req.query.limit) || 2;       // default limit of 2 
+        const skip = (page-1)*limit;
+
+        const totalBlogs = await Blog.countDocuments({});
+        const totalPages = Math.ceil(totalBlogs/limit);     // to count total page 
+
+        const allBlogs = await Blog.find({}).populate("createdBy").skip(skip).limit(limit);
+        const allUsers = await User.find({})
+        res.render("home",{
+            currentUser : req.user,
+            allBlogs : allBlogs,
+            allUsers : allUsers,
+            currentPage : page,
+            totalPages : totalPages,
+            hasNextPage : page < totalPages,        // if current page < totalPages available then nextPage exist
+            hasPrevPage : page > 1                  // lly, for prevPage if currentpage number is atleast > 1 
     });
+    }catch(err){
+        console.error(err);
+        res.status(500)
+    }
 })
 
 app.use("/user",userRoutes);
