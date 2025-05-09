@@ -1,6 +1,6 @@
 # BlogEx
-BlogEx is a blog application where user can create account to add blogs with coverImage , add comments, 
-read full blog and summarize that blog with ai , also main focus was on learning backend(node express mongo atlas ejs)
+BlogEx is a blog application where user can create account to add blogs with coverImage , add comments , upvote the blog, 
+read full blog and summarize that blog with ai, also main focus was on learning backend(node express mongo atlas ejs)
 so used minimal frontend also it implements jwt auth via cookie  , password hashing and gemini ai integration for summary. 
 
 ## Technologies Used
